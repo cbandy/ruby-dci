@@ -1,4 +1,4 @@
-require 'dci_decorate'
+require 'dci/delegate_context'
 
 class Account
   attr_accessor :balance
@@ -8,7 +8,7 @@ class Account
   end
 end
 
-class MoneyTransfer < DCI::Context
+class MoneyTransfer < DCI::DelegateContext
 
   role :Destination, Account do
     def deposit(amount)
