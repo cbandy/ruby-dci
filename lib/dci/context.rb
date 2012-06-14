@@ -1,5 +1,4 @@
 module DCI
-
   class Context
     # Intercept references to constants in the currently executing context
     def self.const_missing(name)

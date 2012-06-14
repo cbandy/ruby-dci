@@ -1,3 +1,4 @@
+module DCI
+end
 
-require 'dci_extend'
-
+require 'dci/context'
