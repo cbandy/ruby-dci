@@ -1,6 +1,12 @@
 module DCI
 
   class Context
+    # Intercept references to constants in the currently executing context
+    def self.const_missing(name)
+      context = Thread.current[:context]
+      context.respond_to?(name) ? context.send(name) : super
+    end
+
     # Define a context entry point
     def self.entry(name, &block)
       define_method(name) do |*args|
@@ -17,17 +23,8 @@ module DCI
 
     # Define a context role
     def self.role(name, *args, &block)
-      if block_given?
-        role_module = Module.new
-        role_module.send(:include, DCI::Role)
-        role_module.module_eval(&block)
-
-        # Camelize
-        role_module_name = name.to_s.split(/_/).map{ |w| w.capitalize }.join('')
-        const_set(role_module_name, role_module)
-      else
-        role_module = args[0]
-      end
+      role_module = Module.new
+      role_module.module_eval(&block)
 
       attr_reader name
 
@@ -39,12 +36,4 @@ module DCI
       protected "#{name}="
     end
   end
-
-  module Role
-    # The currently executing context
-    def context
-      Thread.current[:context]
-    end
-  end
-
 end
