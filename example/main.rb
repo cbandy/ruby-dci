@@ -1,7 +1,7 @@
 require 'dci'
 
 class Account
-  attr_accessor :balance
+  attr_reader :balance
 
   def initialize(balance)
     @balance = balance
@@ -14,7 +14,7 @@ class MoneyTransfer < DCI::Context
     include DCI::Role
 
     def deposit(amount)
-      self.balance += amount
+      @balance += amount
     end
   end
 
@@ -22,7 +22,7 @@ class MoneyTransfer < DCI::Context
 
   role :source do
     def withdraw(amount)
-      self.balance -= amount
+      @balance -= amount
     end
 
     def transfer(amount)
