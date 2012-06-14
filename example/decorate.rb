@@ -10,42 +10,40 @@ end
 
 class MoneyTransfer < DCI::Context
 
-  class Destination < DCI::Role(Account)
+  role :Destination, Account do
     def deposit(amount)
       self.balance += amount
     end
   end
 
-  role :destination, Destination
-
-  role :source, Account do
+  role :Source, Account do
     def withdraw(amount)
       self.balance -= amount
     end
 
     def transfer(amount)
-      puts "Source balance is: #{context.source.balance}"
-      puts "Destination balance is: #{context.destination.balance}"
+      puts "Source balance is: #{Source.balance}"
+      puts "Destination balance is: #{Destination.balance}"
 
-      context.source.withdraw(amount)
-      context.destination.deposit(amount)
+      Source.withdraw(amount)
+      Destination.deposit(amount)
 
-      puts "Source balance is now: #{context.source.balance}"
-      puts "Destination balance is now: #{context.destination.balance}"
+      puts "Source balance is now: #{Source.balance}"
+      puts "Destination balance is now: #{Destination.balance}"
     end
   end
 
   entry :transfer do |amount|
-    @source.transfer(amount)
+    Source.transfer(amount)
   end
 
   def initialize(src, dest)
-    self.source = src
-    self.destination = dest
+    self.Source = src
+    self.Destination = dest
   end
 end
 
-# role classes are named in the context
+# role classes are not named in the context
 puts "* MoneyTransfer constants:", MoneyTransfer.constants, ""
 
 # role variables are readable (though only roles should access...)

@@ -3,6 +3,12 @@ require 'delegate'
 module DCI
 
   class Context
+    # Intercept references to constants in the currently executing context
+    def self.const_missing(name)
+      context = Thread.current[:context]
+      context.respond_to?(name) ? context.send(name) : super
+    end
+
     # Define a context entry point
     def self.entry(name, &block)
       define_method(name) do |*args|
@@ -19,17 +25,9 @@ module DCI
 
     # Define a context role
     def self.role(name, *args, &block)
-      if block_given?
-        data_class = args[0]
-        role_class = DCI::Role(data_class)
-        role_class.module_eval(&block)
-
-        # Camelize
-        role_class_name = name.to_s.split(/_/).map{ |w| w.capitalize }.join('')
-        const_set(role_class_name, role_class)
-      else
-        role_class = args[0]
-      end
+      data_class = args[0]
+      role_class = DelegateClass(data_class)
+      role_class.module_eval(&block)
 
       attr_reader name
 
@@ -40,18 +38,5 @@ module DCI
 
       protected "#{name}="
     end
-  end
-
-  module Role
-    # The currently executing context
-    def context
-      Thread.current[:context]
-    end
-  end
-
-  # Create a decorator class that includes the Role module
-  def self.Role(data_class)
-    role_class = DelegateClass(data_class)
-    role_class.send(:include, Role)
   end
 end
