@@ -28,6 +28,10 @@ module DCI
       attr_reader name
 
       define_method("#{name}=") do |data|
+        role_module.instance_methods.each do |method|
+          raise "RoleMethod conflict: #{name}.#{method}" if data.respond_to?(method, true)
+        end
+
         # Extend the data object with the role module
         instance_variable_set("@#{name}", data).extend(role_module)
       end

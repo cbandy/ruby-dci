@@ -4,10 +4,15 @@ require 'delegate'
 module DCI
   class DelegateContext < Context
     # Define a context role using a delegate class
-    def self.role(name, *args, &block)
-      data_class = args[0]
-      role_class = DelegateClass(data_class)
-      role_class.module_eval(&block)
+    def self.role(name, data_class, &block)
+      role_module = Module.new
+      role_module.module_eval(&block)
+
+      (role_module.instance_methods & data_class.instance_methods).each do |method|
+        raise "RoleMethod conflict: #{name}.#{method}"
+      end
+
+      role_class = DelegateClass(data_class).send(:include, role_module)
 
       attr_reader name
 
