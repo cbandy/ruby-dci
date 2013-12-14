@@ -2,8 +2,13 @@ module DCI
   class Context
     # Intercept references to constants in the currently executing context
     def self.const_missing(name)
-      context = Thread.current[:context]
+      context = current
       context.respond_to?(name) ? context.send(name) : super
+    end
+
+    # The currently executing context
+    def self.current
+      Thread.current['DCI::Context.current']
     end
 
     # Define a context entry point
@@ -11,11 +16,11 @@ module DCI
       define_method(name) do |*args|
         begin
           # Swap out the currently executing context
-          Thread.current[:context], old_context = self, Thread.current[:context]
+          Thread.current['DCI::Context.current'], old_context = self, Thread.current['DCI::Context.current']
           instance_exec(*args, &block)
         ensure
           # Reinstate the previously executing context
-          Thread.current[:context] = old_context
+          Thread.current['DCI::Context.current'] = old_context
         end
       end
     end
