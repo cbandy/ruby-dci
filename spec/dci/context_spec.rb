@@ -1,6 +1,25 @@
 require 'dci/context'
 
 describe DCI::Context do
+  describe 'role implementations' do
+    let(:context) { Class.new(DCI::Context) }
+    let(:context_instance) { context.new }
+    let(:participating_roles) { context_instance[role_player] }
+    let(:role_implementation) { Module.new }
+    let(:role_player) { double }
+
+    specify 'are applied using #cast' do
+      context_instance.cast(role_player, :as => role_implementation)
+
+      expect(role_player).to be_a(DCI::Castable)
+      expect(participating_roles).to be == [role_implementation]
+    end
+
+    specify 'are nil when not applied' do
+      expect(participating_roles).to be_nil
+    end
+  end
+
   describe 'role identifiers are defined using ::role' do
     let(:context) do
       Class.new(DCI::Context) do
@@ -41,10 +60,14 @@ describe DCI::Context do
       end
 
       let(:context_instance) { context.new }
+      let(:participating_roles) { context_instance[role_player] }
       let(:role_player) { context_instance.One }
 
       specify 'it is applied when the role is assigned' do
-        expect(role_player).to respond_to(:something)
+        expect(role_player).to be_a(DCI::Castable)
+        expect(participating_roles).to be_an(Array)
+        expect(participating_roles.first).to be_a(Module)
+        expect(participating_roles.first.public_instance_methods).to include(:something)
       end
     end
   end

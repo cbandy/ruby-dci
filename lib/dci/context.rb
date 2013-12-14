@@ -1,3 +1,5 @@
+require 'dci/castable'
+
 module DCI
   class Context
     # Intercept references to constants in the currently executing context
@@ -35,13 +37,27 @@ module DCI
         role_module.module_eval(&block)
 
         define_method("#{name}=") do |data|
-          instance_variable_set("@#{name}", data).extend(role_module)
+          instance_variable_set("@#{name}", cast(data, :as => role_module))
         end
       else
         attr_writer name
       end
 
       protected "#{name}="
+    end
+
+    def cast(actor, roles)
+      actor.extend(Castable) unless actor.is_a?(Castable)
+
+      @roles ||= {}
+      @roles[actor] ||= []
+      @roles[actor] |= roles.values
+
+      actor
+    end
+
+    def [](actor)
+      @roles && @roles[actor]
     end
   end
 end
