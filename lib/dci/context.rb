@@ -27,14 +27,18 @@ module DCI
 
     # Define a context role
     def self.role(name, *args, &block)
-      role_module = Module.new
-      role_module.module_eval(&block)
-
       attr_reader name
+      public name
 
-      define_method("#{name}=") do |data|
-        # Extend the data object with the role module
-        instance_variable_set("@#{name}", data).extend(role_module)
+      if block_given?
+        role_module = Module.new
+        role_module.module_eval(&block)
+
+        define_method("#{name}=") do |data|
+          instance_variable_set("@#{name}", data).extend(role_module)
+        end
+      else
+        attr_writer name
       end
 
       protected "#{name}="
