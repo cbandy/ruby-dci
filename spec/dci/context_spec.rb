@@ -73,6 +73,69 @@ describe DCI::Context do
   end
 
   describe 'use case triggers are identified using ::entry' do
+    subject(:context_instance) { context.new }
+
+    shared_examples 'correctly manages the currently executing context' do
+      specify 'it assigns the executing context' do
+        context_instance.something do
+          expect(DCI::Context.current).to be == context_instance
+        end
+      end
+
+      specify 'it restores the previously executing context' do
+        expect { context_instance.something {} }.to_not change { DCI::Context.current }
+      end
+    end
+
+    context 'when the method exists' do
+      let(:context) do
+        Class.new(DCI::Context) do
+          def something(&block)
+            block.call
+          end
+
+          entry :something
+        end
+      end
+
+      specify 'it can be called' do
+        expect(context_instance).to respond_to(:something)
+        expect(context_instance.something { :expected }).to be == :expected
+      end
+
+      include_examples 'correctly manages the currently executing context'
+    end
+
+    context 'when the method does not exist' do
+      let(:context) do
+        Class.new(DCI::Context) do
+          entry :something
+        end
+      end
+
+      specify 'it cannot be called' do
+        expect(context_instance).to_not respond_to(:something)
+        expect { context_instance.something }.to raise_error(NoMethodError, /something/)
+      end
+
+      context 'once the method is defined' do
+        before do
+          context.class_exec do
+            def something(&block)
+              block.call
+            end
+          end
+        end
+
+        specify 'it can be called' do
+          expect(context_instance).to respond_to(:something)
+          expect(context_instance.something { :expected }).to be == :expected
+        end
+
+        include_examples 'correctly manages the currently executing context'
+      end
+    end
+
     describe 'when passed a block, that block becomes the definition' do
       let(:context) do
         Class.new(DCI::Context) do
@@ -81,8 +144,6 @@ describe DCI::Context do
           end
         end
       end
-
-      subject(:context_instance) { context.new }
 
       specify 'that can be called' do
         expect(context_instance).to respond_to(:point)
@@ -98,18 +159,43 @@ describe DCI::Context do
           end
         end
 
-        specify 'those parameters are not required' do
-          expect { context_instance.parameters }.to_not raise_error
+        specify 'those parameters are required' do
+          expect { context_instance.parameters }.to raise_error(ArgumentError)
         end
 
-        specify 'those parameters default to nil' do
-          expect(context_instance.parameters).to be_nil
+        specify 'and can be called with arguments' do
+          expect(context_instance.parameters(:expected)).to be == :expected
+        end
+      end
+
+      context 'when the block takes a block' do
+        let(:context) do
+          Class.new(DCI::Context) do
+            entry :block do |&block|
+              block.call
+            end
+          end
         end
 
-        specify 'but can be called with arguments' do
-          argument = double
-          expect(context_instance.parameters(argument)).to be == argument
+        specify 'it works' do
+          expect(context_instance.block { :expected }).to be == :expected
         end
+      end
+    end
+
+    describe 'when passed a lambda, that lambda becomes the definition' do
+      let(:context) do
+        Class.new(DCI::Context) do
+          entry :parameters, -> (argument) do
+            argument
+          end
+        end
+      end
+
+      specify 'that can be called' do
+        expect(context_instance).to respond_to(:parameters)
+        expect { context_instance.parameters }.to raise_error(ArgumentError)
+        expect(context_instance.parameters(:expected)).to be == :expected
       end
     end
   end

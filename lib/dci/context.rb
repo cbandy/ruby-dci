@@ -13,17 +13,42 @@ module DCI
       Thread.current['DCI::Context.current']
     end
 
-    # Define a context entry point
-    def self.entry(name, &block)
-      define_method(name) do |*args|
+    def self.define_entry_using_method(name)
+      method = instance_method(name)
+      define_method(name) do |*arguments, &block|
         begin
           # Swap out the currently executing context
           Thread.current['DCI::Context.current'], old_context = self, Thread.current['DCI::Context.current']
-          instance_exec(*args, &block)
+          method.bind(self).call(*arguments, &block)
         ensure
           # Reinstate the previously executing context
           Thread.current['DCI::Context.current'] = old_context
         end
+      end
+    end
+
+    def self.define_entry_using_proc(name, definition)
+      define_method(name, &definition)
+      define_entry_using_method(name)
+    end
+
+    # Define a context entry point
+    def self.entry(name, proc = nil, &block)
+      if block_given?
+        define_entry_using_proc(name, block)
+      elsif proc.respond_to?(:to_proc)
+        define_entry_using_proc(name, proc)
+      elsif method_defined?(name)
+        define_entry_using_method(name)
+      else
+        @entries ||= []
+        @entries |= [name]
+      end
+    end
+
+    def self.method_added(name)
+      if @entries && @entries.delete(name)
+        define_entry_using_method(name)
       end
     end
 
