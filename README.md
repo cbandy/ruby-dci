@@ -145,6 +145,8 @@ can be done with bare constants.
 
 ```ruby
 class MoneyTransfer < DCI::Context
+  extend DCI::RoleLookup
+
   role :Source do
     def withdraw(amount)
       @balance -= amount

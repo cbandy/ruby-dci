@@ -10,12 +10,6 @@ module DCI
 
       private
 
-      # Intercept references to constants in the currently executing context
-      def const_missing(name)
-        context = current
-        context.respond_to?(name) ? context.send(name) : super
-      end
-
       # Replace an existing method with a wrapper that advertises the current context
       def define_entry_using_method(name)
         method = instance_method(name)
