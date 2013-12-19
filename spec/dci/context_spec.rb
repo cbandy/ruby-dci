@@ -2,7 +2,7 @@ require 'dci/context'
 
 describe DCI::Context do
   describe 'role implementations' do
-    let(:context) { Class.new(DCI::Context) }
+    let(:context) { Class.new { include DCI::Context } }
     let(:context_instance) { context.new }
     let(:participating_roles) { context_instance[role_player] }
     let(:role_implementation) { Module.new }
@@ -22,7 +22,9 @@ describe DCI::Context do
 
   describe 'role identifiers are defined using ::role' do
     let(:context) do
-      Class.new(DCI::Context) do
+      Class.new do
+        include DCI::Context
+
         role :One
 
         def initialize(one)
@@ -46,7 +48,9 @@ describe DCI::Context do
 
     describe 'when passed a block, that block becomes the implementation' do
       let(:context) do
-        Class.new(DCI::Context) do
+        Class.new do
+          include DCI::Context
+
           role :One do
             def something
               :expected
@@ -89,7 +93,9 @@ describe DCI::Context do
 
     context 'when the method exists' do
       let(:context) do
-        Class.new(DCI::Context) do
+        Class.new do
+          include DCI::Context
+
           def something(&block)
             block.call
           end
@@ -108,7 +114,9 @@ describe DCI::Context do
 
     context 'when the method does not exist' do
       let(:context) do
-        Class.new(DCI::Context) do
+        Class.new do
+          include DCI::Context
+
           entry :something
         end
       end
@@ -138,7 +146,9 @@ describe DCI::Context do
 
     describe 'when passed a block, that block becomes the definition' do
       let(:context) do
-        Class.new(DCI::Context) do
+        Class.new do
+          include DCI::Context
+
           entry :point do
             :expected
           end
@@ -152,7 +162,9 @@ describe DCI::Context do
 
       context 'when the block has parameters' do
         let(:context) do
-          Class.new(DCI::Context) do
+          Class.new do
+            include DCI::Context
+
             entry :parameters do |argument|
               argument
             end
@@ -170,7 +182,9 @@ describe DCI::Context do
 
       context 'when the block takes a block' do
         let(:context) do
-          Class.new(DCI::Context) do
+          Class.new do
+            include DCI::Context
+
             entry :block do |&block|
               block.call
             end
@@ -185,7 +199,9 @@ describe DCI::Context do
 
     describe 'when passed a lambda, that lambda becomes the definition' do
       let(:context) do
-        Class.new(DCI::Context) do
+        Class.new do
+          include DCI::Context
+
           entry :parameters, -> (argument) do
             argument
           end

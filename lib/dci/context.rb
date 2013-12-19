@@ -1,13 +1,31 @@
 require 'dci/castable'
 
 module DCI
-  class Context
-    class << self
-      # The currently executing context
-      def current
-        Thread.current['DCI::Context.current']
-      end
+  module Context
+    # The currently executing context
+    def self.current
+      Thread.current['DCI::Context.current']
+    end
 
+    def self.included(calling_module)
+      calling_module.extend(DSL)
+    end
+
+    def cast(actor, roles)
+      actor.extend(Castable) unless actor.is_a?(Castable)
+
+      @roles ||= {}
+      @roles[actor] ||= []
+      @roles[actor] |= roles.values
+
+      actor
+    end
+
+    def [](actor)
+      @roles && @roles[actor]
+    end
+
+    module DSL
       private
 
       # Replace an existing method with a wrapper that advertises the current context
@@ -70,20 +88,6 @@ module DCI
 
         protected "#{name}="
       end
-    end
-
-    def cast(actor, roles)
-      actor.extend(Castable) unless actor.is_a?(Castable)
-
-      @roles ||= {}
-      @roles[actor] ||= []
-      @roles[actor] |= roles.values
-
-      actor
-    end
-
-    def [](actor)
-      @roles && @roles[actor]
     end
   end
 end

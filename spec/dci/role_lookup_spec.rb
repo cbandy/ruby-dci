@@ -2,7 +2,8 @@ require 'dci/role_lookup'
 
 describe DCI::RoleLookup do
   context 'when roles are lowercase' do
-    class LowercaseContext < DCI::Context
+    class LowercaseContext
+      include DCI::Context
       extend DCI::RoleLookup
 
       role :one
@@ -32,7 +33,8 @@ describe DCI::RoleLookup do
   context 'when roles are capitalized' do
     context 'in an anonymous module' do
       let(:context) do
-        Class.new(DCI::Context) do
+        Class.new do
+          include DCI::Context
           extend DCI::RoleLookup
 
           role :One
@@ -51,7 +53,8 @@ describe DCI::RoleLookup do
     end
 
     context 'in a named module' do
-      class NamedContext < DCI::Context
+      class NamedContext
+        include DCI::Context
         extend DCI::RoleLookup
 
         role :One
@@ -94,14 +97,16 @@ describe DCI::RoleLookup do
       end
 
       specify 'those roles cannot be referenced by a later executing context' do
-        class FirstContext < DCI::Context
+        class FirstContext
+          include DCI::Context
           role :One
           entry :call do
             SecondContext.new.call
           end
         end
 
-        class SecondContext < DCI::Context
+        class SecondContext
+          include DCI::Context
           entry :call do
             One
           end

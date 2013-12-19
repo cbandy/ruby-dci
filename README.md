@@ -1,4 +1,4 @@
-h3. A lightweight DSL for DCI in Ruby
+### A lightweight DSL for DCI in Ruby
 
 - Role Identifiers
 - Methodful Roles
@@ -7,7 +7,9 @@ h3. A lightweight DSL for DCI in Ruby
 Roles are identified within a Context using the `role` keyword.
 
 ```ruby
-class MoneyTransfer < DCI::Context
+class MoneyTransfer
+  include DCI::Context
+
   role :Source
   role :Sink
 
@@ -21,7 +23,9 @@ end
 Objects can be cast as role players using the `cast` method.
 
 ```ruby
-class MoneyTransfer < DCI::Context
+class MoneyTransfer
+  include DCI::Context
+
   role :Source
   role :Sink
 
@@ -47,7 +51,9 @@ end
 `role` supports a shorthand that defines an identifier and its behavior.
 
 ```ruby
-class MoneyTransfer < DCI::Context
+class MoneyTransfer
+  include DCI::Context
+
   role :Source do
     def withdraw(amount)
       @balance -= amount
@@ -71,7 +77,9 @@ Context entry points are identified using the `entry` keyword. This allows
 role players to refer each other during the execution of the Context.
 
 ```ruby
-class MoneyTransfer < DCI::Context
+class MoneyTransfer
+  include DCI::Context
+
   role :Source do
     def withdraw(amount)
       @balance -= amount
@@ -105,7 +113,9 @@ end
 `entry` also supports a shorthand to define the behavior at once.
 
 ```ruby
-class MoneyTransfer < DCI::Context
+class MoneyTransfer
+  include DCI::Context
+
   role :Source do
     def withdraw(amount)
       @balance -= amount
@@ -144,7 +154,8 @@ When the Context class is not anonymous, referring to the current role players
 can be done with bare constants.
 
 ```ruby
-class MoneyTransfer < DCI::Context
+class MoneyTransfer
+  include DCI::Context
   extend DCI::RoleLookup
 
   role :Source do
