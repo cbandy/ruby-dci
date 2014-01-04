@@ -147,7 +147,7 @@ end
 Lambdas can also be used with `entry`.
 
 ```ruby
-entry :transfer, -> (amount) { self.Source.transfer(amount) }
+entry :transfer, ->(amount) { self.Source.transfer(amount) }
 ```
 
 When the Context class is not anonymous, referring to the current role players
@@ -175,7 +175,7 @@ class MoneyTransfer
     end
   end
 
-  entry :transfer, -> (amount) do
+  entry :transfer, ->(amount) do
     Source.transfer(amount)
   end
 

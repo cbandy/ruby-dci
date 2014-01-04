@@ -202,7 +202,7 @@ describe DCI::Context do
         Class.new do
           include DCI::Context
 
-          entry :parameters, -> (argument) do
+          entry :parameters, ->(argument) do
             argument
           end
         end
