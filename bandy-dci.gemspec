@@ -4,11 +4,13 @@ Gem::Specification.new do |s|
 
   s.authors = ["Chris Bandy"]
   s.email = ["bandy.chris@gmail.com"]
-  s.files = Dir.glob("lib/**/*")
   s.homepage = %q{https://github.com/cbandy/ruby-dci}
-  s.require_paths = ["lib"]
   s.summary = "DCI"
   s.description = "Facilitate DCI in Ruby"
 
-  s.require_path = "lib"
+  s.files = Dir.glob('lib/**/*')
+  s.require_paths = ['lib']
+  s.test_files = Dir.glob('spec/**/*')
+
+  s.add_development_dependency 'rspec', '>= 2.14'
 end
