@@ -191,3 +191,5 @@ class MoneyTransfer
   end
 end
 ```
+
+[![Build Status](https://travis-ci.org/cbandy/ruby-dci.png)](https://travis-ci.org/cbandy/ruby-dci)
