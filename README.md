@@ -150,6 +150,12 @@ Lambdas can also be used with `entry`.
 entry :transfer, ->(amount) { self.Source.transfer(amount) }
 ```
 
+Entry points that delegate directly to a role can be defined with `trigger`.
+
+```ruby
+trigger :transfer, :Source, :transfer
+```
+
 When the Context class is not anonymous, referring to the current role players
 can be done with bare constants.
 
