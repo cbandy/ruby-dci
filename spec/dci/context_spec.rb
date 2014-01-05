@@ -76,14 +76,12 @@ describe DCI::Context do
     end
   end
 
-  describe 'use case triggers are identified using ::entry' do
+  describe 'context entry points are identified using ::entry' do
     subject(:context_instance) { context.new }
 
     shared_examples 'correctly manages the currently executing context' do
       specify 'it assigns the executing context' do
-        context_instance.something do
-          expect(DCI::Context.current).to be == context_instance
-        end
+        context_instance.something { expect(DCI::Context.current).to be == context_instance }
       end
 
       specify 'it restores the previously executing context' do
@@ -212,6 +210,80 @@ describe DCI::Context do
         expect(context_instance).to respond_to(:parameters)
         expect { context_instance.parameters }.to raise_error(ArgumentError)
         expect(context_instance.parameters(:expected)).to be == :expected
+      end
+    end
+  end
+
+  describe 'use case triggers are identified using ::trigger' do
+    let(:context) do
+      Class.new do
+        include DCI::Context
+        trigger :trigger_name, :RoleName, :method_name
+      end
+    end
+    let(:context_instance) { context.new }
+
+    specify 'the trigger is callable' do
+      expect(context_instance).to respond_to(:trigger_name)
+    end
+
+    context 'when the role does not exist' do
+      specify 'calling the trigger raises a NoMethodError' do
+        expect { context_instance.trigger_name }.to raise_error(NoMethodError, /RoleName/)
+      end
+    end
+
+    context 'when the role method does not exist' do
+      before { context.class_eval { role :RoleName } }
+
+      specify 'calling the trigger raises a NoMethodError' do
+        expect { context_instance.trigger_name }.to raise_error(NoMethodError, /method_name/)
+      end
+    end
+
+    context 'when the role and method exist' do
+      before do
+        context.class_eval do
+          role :RoleName do
+            def method_name(&block)
+              block.call
+            end
+          end
+
+          def initialize
+            self.RoleName = Object.new
+          end
+        end
+      end
+
+      specify 'it can be called' do
+        expect(context_instance.trigger_name { :expected }).to be == :expected
+      end
+
+      specify 'it assigns the executing context' do
+        context_instance.trigger_name { expect(DCI::Context.current).to be == context_instance }
+      end
+
+      specify 'it restores the previously executing context' do
+        expect { context_instance.trigger_name {} }.to_not change { DCI::Context.current }
+      end
+    end
+
+    context 'with two arguments' do
+      let(:context) do
+        Class.new do
+          include DCI::Context
+
+          trigger :trigger_name, :RoleName
+        end
+      end
+      let(:role_player) { double }
+
+      before { allow(context_instance).to receive(:RoleName).and_return(role_player) }
+
+      specify 'the method defaults to trigger name' do
+        expect(role_player).to receive(:trigger_name)
+        context_instance.trigger_name
       end
     end
   end

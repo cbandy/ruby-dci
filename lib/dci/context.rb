@@ -63,7 +63,7 @@ module DCI
         end
       end
 
-      # Listen for new methods that are intended to be use case triggers
+      # Listen for new methods that are intended to be entry points
       def method_added(name)
         if @entries && @entries.delete(name)
           define_entry_using_method(name)
@@ -87,6 +87,12 @@ module DCI
         end
 
         protected "#{name}="
+      end
+
+      def trigger(name, delegate, method = name)
+        entry(name) do |*arguments, &block|
+          __send__(delegate).__send__(method, *arguments, &block)
+        end
       end
     end
   end
