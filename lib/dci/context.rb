@@ -4,7 +4,7 @@ module DCI
   module Context
     # The currently executing context
     def self.current
-      Thread.current['DCI::Context.current']
+      Thread.current[:'DCI::Context.current']
     end
 
     def self.included(calling_module)
@@ -34,11 +34,11 @@ module DCI
         define_method(name) do |*arguments, &block|
           begin
             # Swap out the currently executing context
-            Thread.current['DCI::Context.current'], old_context = self, Thread.current['DCI::Context.current']
+            Thread.current[:'DCI::Context.current'], old_context = self, Thread.current[:'DCI::Context.current']
             method.bind(self).call(*arguments, &block)
           ensure
             # Reinstate the previously executing context
-            Thread.current['DCI::Context.current'] = old_context
+            Thread.current[:'DCI::Context.current'] = old_context
           end
         end
       end
