@@ -48,3 +48,11 @@ Benchmark.bm(20) do |bm|
     bm.report('Not implemented') { number_of.times { actor.missing rescue NoMethodError } }
   end
 end
+
+Benchmark.bm(20) do |bm|
+  bm.report('Create object') { number_of.times { Object.new } }
+  bm.report('Create actor') { number_of.times { ExampleActor.new } }
+
+  bm.report('Cast object') { number_of.times { context.with(Object.new) {} } }
+  bm.report('Cast actor') { number_of.times { context.with(ExampleActor.new) {} } }
+end
