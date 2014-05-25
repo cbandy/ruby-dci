@@ -10,7 +10,7 @@ describe DCI::Castable do
     end
 
     specify 'calling an implemented method works' do
-      expect(actor.greet).to be == 'hello'
+      expect(actor.greet).to eq 'hello'
     end
   end
 
@@ -19,7 +19,7 @@ describe DCI::Castable do
     let(:role) { Module.new }
 
     before do
-      stub_const('DCI::Context', double(:current => context_participants))
+      allow(DCI::Context).to receive(:current).and_return(context_participants)
     end
 
     specify 'calling a method implemented by none of its roles raises NoMethodError' do
@@ -28,29 +28,29 @@ describe DCI::Castable do
     end
 
     context 'when one of its roles implements a public method' do
-      let(:role) { Module.new { def eat; 'yum'; end } }
+      let(:role) { Module.new { def eat; :yum; end } }
 
       specify 'calling that method works' do
         expect(actor).to respond_to(:eat)
-        expect(actor.eat).to be == 'yum'
+        expect(actor.eat).to be :yum
       end
     end
 
     context 'when one of its roles implements a protected method' do
-      let(:role) { Module.new { protected; def eat; 'yum'; end } }
+      let(:role) { Module.new { protected; def eat; :yum; end } }
 
       specify 'calling that method works' do
         expect(actor).to respond_to(:eat)
-        expect(actor.eat).to be == 'yum'
+        expect(actor.eat).to be :yum
       end
     end
 
     context 'when one of its roles implements a private method' do
-      let(:role) { Module.new { private; def eat; 'yum'; end } }
+      let(:role) { Module.new { private; def eat; :yum; end } }
 
       specify 'calling that method works' do
         expect(actor).to respond_to(:eat)
-        expect(actor.eat).to be == 'yum'
+        expect(actor.eat).to be :yum
       end
     end
 
@@ -62,7 +62,7 @@ describe DCI::Castable do
       end
 
       specify 'calling that method with arguments works' do
-        expect(actor.sing(:song)).to be == :song
+        expect(actor.sing(:song)).to be :song
       end
     end
 
@@ -70,7 +70,7 @@ describe DCI::Castable do
       let(:role) { Module.new { def sing(&block); block.call; end } }
 
       specify 'calling that method with a block works' do
-        expect(actor.sing { :song }).to be == :song
+        expect(actor.sing { :song }).to be :song
       end
     end
   end

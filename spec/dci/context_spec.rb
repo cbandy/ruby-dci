@@ -12,11 +12,11 @@ describe DCI::Context do
       context_instance.cast(role_player, :as => role_implementation)
 
       expect(role_player).to be_a(DCI::Castable)
-      expect(participating_roles).to be == [role_implementation]
+      expect(participating_roles).to eq [role_implementation]
     end
 
     specify 'are nil when not applied' do
-      expect(participating_roles).to be_nil
+      expect(participating_roles).to be nil
     end
   end
 
@@ -42,7 +42,7 @@ describe DCI::Context do
       end
 
       specify 'role players can be accessed' do
-        expect(context_instance.One).to be == one
+        expect(context_instance.One).to be one
       end
     end
 
@@ -68,10 +68,10 @@ describe DCI::Context do
       let(:role_player) { context_instance.One }
 
       specify 'it is applied when the role is assigned' do
-        expect(role_player).to be_a(DCI::Castable)
-        expect(participating_roles).to be_an(Array)
-        expect(participating_roles.first).to be_a(Module)
-        expect(participating_roles.first.public_instance_methods).to include(:something)
+        expect(role_player).to be_a DCI::Castable
+        expect(participating_roles).to be_an Array
+        expect(participating_roles.first).to be_a Module
+        expect(participating_roles.first.public_instance_methods).to include :something
       end
     end
   end
@@ -81,7 +81,7 @@ describe DCI::Context do
 
     shared_examples 'correctly manages the currently executing context' do
       specify 'it assigns the executing context' do
-        context_instance.something { expect(DCI::Context.current).to be == context_instance }
+        context_instance.something { expect(DCI::Context.current).to be context_instance }
       end
 
       specify 'it restores the previously executing context' do
@@ -103,8 +103,8 @@ describe DCI::Context do
       end
 
       specify 'it can be called' do
-        expect(context_instance).to respond_to(:something)
-        expect(context_instance.something { :expected }).to be == :expected
+        expect(context_instance).to respond_to :something
+        expect(context_instance.something { :expected }).to be :expected
       end
 
       include_examples 'correctly manages the currently executing context'
@@ -120,7 +120,7 @@ describe DCI::Context do
       end
 
       specify 'it cannot be called' do
-        expect(context_instance).to_not respond_to(:something)
+        expect(context_instance).to_not respond_to :something
         expect { context_instance.something }.to raise_error(NoMethodError, /something/)
       end
 
@@ -134,8 +134,8 @@ describe DCI::Context do
         end
 
         specify 'it can be called' do
-          expect(context_instance).to respond_to(:something)
-          expect(context_instance.something { :expected }).to be == :expected
+          expect(context_instance).to respond_to :something
+          expect(context_instance.something { :expected }).to be :expected
         end
 
         include_examples 'correctly manages the currently executing context'
@@ -154,8 +154,8 @@ describe DCI::Context do
       end
 
       specify 'that can be called' do
-        expect(context_instance).to respond_to(:point)
-        expect(context_instance.point).to be == :expected
+        expect(context_instance).to respond_to :point
+        expect(context_instance.point).to be :expected
       end
 
       context 'when the block has parameters' do
@@ -170,11 +170,11 @@ describe DCI::Context do
         end
 
         specify 'those parameters are required' do
-          expect { context_instance.parameters }.to raise_error(ArgumentError)
+          expect { context_instance.parameters }.to raise_error ArgumentError
         end
 
         specify 'and can be called with arguments' do
-          expect(context_instance.parameters(:expected)).to be == :expected
+          expect(context_instance.parameters(:expected)).to be :expected
         end
       end
 
@@ -190,7 +190,7 @@ describe DCI::Context do
         end
 
         specify 'it works' do
-          expect(context_instance.block { :expected }).to be == :expected
+          expect(context_instance.block { :expected }).to be :expected
         end
       end
     end
@@ -207,9 +207,9 @@ describe DCI::Context do
       end
 
       specify 'that can be called' do
-        expect(context_instance).to respond_to(:parameters)
-        expect { context_instance.parameters }.to raise_error(ArgumentError)
-        expect(context_instance.parameters(:expected)).to be == :expected
+        expect(context_instance).to respond_to :parameters
+        expect { context_instance.parameters }.to raise_error ArgumentError
+        expect(context_instance.parameters(:expected)).to be :expected
       end
     end
   end
@@ -224,7 +224,7 @@ describe DCI::Context do
     let(:context_instance) { context.new }
 
     specify 'the trigger is callable' do
-      expect(context_instance).to respond_to(:trigger_name)
+      expect(context_instance).to respond_to :trigger_name
     end
 
     context 'when the role does not exist' do
@@ -257,11 +257,11 @@ describe DCI::Context do
       end
 
       specify 'it can be called' do
-        expect(context_instance.trigger_name { :expected }).to be == :expected
+        expect(context_instance.trigger_name { :expected }).to be :expected
       end
 
       specify 'it assigns the executing context' do
-        context_instance.trigger_name { expect(DCI::Context.current).to be == context_instance }
+        context_instance.trigger_name { expect(DCI::Context.current).to be context_instance }
       end
 
       specify 'it restores the previously executing context' do
@@ -282,7 +282,7 @@ describe DCI::Context do
       before { allow(context_instance).to receive(:RoleName).and_return(role_player) }
 
       specify 'the method defaults to trigger name' do
-        expect(role_player).to receive(:trigger_name)
+        expect(role_player).to receive :trigger_name
         context_instance.trigger_name
       end
     end
