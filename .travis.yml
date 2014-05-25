@@ -3,9 +3,15 @@ language: ruby
 rvm:
   - 1.9.3
   - 2.0.0
-  - 2.1.0
+  - 2.1
+  - ruby-head
   - jruby-19mode
+  - jruby-head
 
-script: >
-  rspec --format documentation &&
-  bundle exec ruby benchmark.rb
+matrix:
+  allow_failures:
+    - rvm: ruby-head
+    - rvm: jruby-head
+
+script: rspec --format documentation
+after_success: bundle exec ruby benchmark.rb
