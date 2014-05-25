@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name = 'bandy-dci'
-  s.version = '0.0.3'
+  s.version = '0.0.4'
   s.summary = 'DCI'
   s.description = 'Facilitate DCI in Ruby'
 
